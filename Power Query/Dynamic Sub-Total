@@ -1,0 +1,64 @@
+= let
+    Source = Reordered,  // Use your last existing step
+    // Ensure numeric columns are properly typed
+    #"Ensure Numeric Types" = Table.TransformColumnTypes(Source, 
+        List.Transform(
+            List.Skip(Table.ColumnNames(Source), 4),
+            each {_, type number}
+        )
+    ),
+    // Get list of numeric columns (all columns except first four)
+    NumericColumns = List.Skip(Table.ColumnNames(#"Ensure Numeric Types"), 4),
+
+    // Function to create subtotal rows
+    CreateSubtotals = (tbl as table) =>
+        let
+            Grouped = Table.Group(tbl, {"Name of the Block"}, {{"AllRows", each _}}),
+            Subtotals = Table.AddColumn(Grouped, "Subtotal", each 
+                let
+                    BlockName = [Name of the Block],
+                    SumValues = List.Transform(
+                        NumericColumns, 
+                        (col) => List.Sum(Table.Column([AllRows], col))
+                    ),
+                    SubtotalRow = Record.FromList(
+                        {null, BlockName & " Total", null, null} & SumValues,
+                        Table.ColumnNames(#"Ensure Numeric Types")
+                    )
+                in
+                    SubtotalRow
+            ),
+            Extracted = Table.SelectColumns(Subtotals, {"Subtotal"}),
+            Expanded = Table.ExpandRecordColumn(Extracted, "Subtotal", Table.ColumnNames(#"Ensure Numeric Types"))
+        in
+            Expanded,
+
+    // Create Grand Total row
+    CreateGrandTotal = (tbl as table) =>
+        let
+            SumValues = List.Transform(
+                NumericColumns, 
+                (col) => List.Sum(Table.Column(tbl, col))
+            ),
+            GrandTotalRow = Record.FromList(
+                {null, "ZGrand Total", null, null} & SumValues,
+                Table.ColumnNames(#"Ensure Numeric Types")
+            ),
+            GrandTable = Table.FromRecords({GrandTotalRow})
+        in
+            GrandTable,
+
+    // Create subtotal rows
+    Subtotals = CreateSubtotals(#"Ensure Numeric Types"),
+
+    // Create grand total
+    GrandTotal = CreateGrandTotal(#"Ensure Numeric Types"),
+
+    // Combine all data
+    Combined = Table.Combine({#"Ensure Numeric Types", Subtotals, GrandTotal}),
+    
+    // Sort to maintain original order with subtotals
+    #"Sorted Rows" = Table.Sort(Combined,{{"Name of the Block", Order.Ascending}}),
+    #"Replace Values"=Table.ReplaceValue(#"Sorted Rows","ZGrand","GRAND",Replacer.ReplaceText,{"Name of the Block"})
+in
+    #"Replace Values"
