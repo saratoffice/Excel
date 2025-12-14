@@ -1,0 +1,44 @@
+Sub SumAndMerge_K_L_N_ByMill()
+
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long, startRow As Long
+    Dim millName As String
+    Dim totalQty As Double
+
+    Set ws = ActiveSheet
+    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
+
+    Application.DisplayAlerts = False   ' 🔕 suppress merge warnings
+
+    i = 2
+
+    Do While i <= lastRow
+
+        startRow = i
+        millName = ws.Cells(i, "J").Value
+        totalQty = 0
+
+        ' Sum Quantity for same Mill Name
+        Do While i <= lastRow And ws.Cells(i, "J").Value = millName
+            totalQty = totalQty + ws.Cells(i, "M").Value
+            i = i + 1
+        Loop
+
+        ' Write total once
+        ws.Cells(startRow, "N").Value = totalQty
+
+        ' Merge K, L, N
+        If i - startRow > 1 Then
+            ws.Range("K" & startRow & ":K" & i - 1).Merge
+            ws.Range("L" & startRow & ":L" & i - 1).Merge
+            ws.Range("N" & startRow & ":N" & i - 1).Merge
+
+            ws.Range("K" & startRow & ":N" & i - 1).VerticalAlignment = xlCenter
+        End If
+
+    Loop
+
+    Application.DisplayAlerts = True    ' 🔔 restore alerts
+
+End Sub
