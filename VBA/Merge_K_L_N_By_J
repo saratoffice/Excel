@@ -1,4 +1,4 @@
-Sub SumAndMerge_K_L_N_ByMill()
+Sub SumAndMerge_K_L_N_By_J()
 
     Dim ws As Worksheet
     Dim lastRow As Long
