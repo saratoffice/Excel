@@ -1,0 +1,49 @@
+Sub MergeOnly_KeepTopValue()
+
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long, startRow As Long
+    Dim groupCol As Long
+    Dim mergeCols As Variant
+    Dim groupValue As String
+    Dim col As Variant
+
+    Set ws = ActiveSheet
+
+    ' Ask for grouping column (e.g. J)
+    groupCol = Columns(Application.InputBox( _
+        "Enter GROUPING column (e.g. J):", Type:=2)).Column
+
+    ' Ask for merge columns (comma-separated, e.g. K,L,N)
+    mergeCols = Split(Application.InputBox( _
+        "Enter columns to MERGE (comma separated, e.g. K,L,N):", Type:=2), ",")
+
+    lastRow = ws.Cells(ws.Rows.Count, groupCol).End(xlUp).Row
+
+    Application.DisplayAlerts = False   ' suppress merge warnings
+
+    i = 2   ' assuming header row
+
+    Do While i <= lastRow
+
+        startRow = i
+        groupValue = ws.Cells(i, groupCol).Value
+
+        ' Move to end of same group
+        Do While i <= lastRow And ws.Cells(i, groupCol).Value = groupValue
+            i = i + 1
+        Loop
+
+        ' Merge selected columns (top cell value preserved)
+        If i - startRow > 1 Then
+            For Each col In mergeCols
+                ws.Range(col & startRow & ":" & col & i - 1).Merge
+                ws.Range(col & startRow & ":" & col & i - 1).VerticalAlignment = xlCenter
+            Next col
+        End If
+
+    Loop
+
+    Application.DisplayAlerts = True
+
+End Sub
