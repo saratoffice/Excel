@@ -1,16 +1,3 @@
-FOLLOW THE STEPS TO UNPROTECT A PROTECTED EXCEL SHEET
-1. Copy and paste following VBA code 
-2. Open the excel sheet
-3. Open Microsoft Visual Basic for Applications( By clicking CTRL+F11 or Developer & Visual Basic)
-4. Open Module inside Visual Basic for Applications (By clicking on VBA then Insart then Module)
-5. Past the code inside module
-6. Press F5 to refresh the window
-7. Click on Prompt OK
-8. Now sheet is Unprotected
-9. Save Sheet pressing on Yes without Macro
-10 For Detail follow Youtube video https://www.youtube.com/watch?v=Cm3vZ17VCuw
-
-
 Sub PasswordBreaker()
 'Breaks worksheet password protection.
 Dim i As Integer, j As Integer, k As Integer
