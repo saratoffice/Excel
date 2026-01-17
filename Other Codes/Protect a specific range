@@ -1,0 +1,5 @@
+Sub ProtectRangeWithPassword()
+    ' Protect the range A2:B10 with a password
+    ThisWorkbook.Sheets("SheetName").Range("A2:B10").Locked = True
+    ThisWorkbook.Sheets("SheetName").Protect Password:="myPassword", UserInterfaceOnly:=True
+End Sub
