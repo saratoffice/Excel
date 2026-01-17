@@ -1,0 +1,15 @@
+Sub IdentifyFirstLastRowInFilteredData()
+
+    Dim ws As Worksheet
+    Dim rng As Range
+    Dim firstRow As Long, lastRow As Long
+    
+    Set ws = ThisWorkbook.Worksheets("Sheet1") ' Replace "Sheet1" with your sheet name
+    Set rng = ws.AutoFilter.Range.Columns(1).SpecialCells(xlCellTypeVisible)
+    
+    firstRow = rng.Cells(1).Row
+    lastRow = rng.Cells(rng.Cells.Count).Row
+    
+    MsgBox "First non-blank row: " & firstRow & vbCrLf & "Last non-blank row: " & lastRow
+    
+End Sub
