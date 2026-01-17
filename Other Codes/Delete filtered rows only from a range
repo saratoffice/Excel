@@ -1,0 +1,27 @@
+Sub Delete_Filtered_Rows()
+    Dim rng As Range
+    Set rng = ActiveSheet.Range("A1:F100") 'Change range to your desired range
+    
+    'Check if any filter is applied
+    If Not ActiveSheet.AutoFilterMode Then
+        MsgBox "No filter is applied on the sheet."
+        Exit Sub
+    End If
+    
+    'Check if any rows are filtered
+    If ActiveSheet.FilterMode And rng.SpecialCells(xlCellTypeVisible).Rows.Count <= 1 Then
+        MsgBox "No rows are visible after applying filter."
+        Exit Sub
+    End If
+    
+    'Delete filtered rows
+    On Error Resume Next
+    rng.SpecialCells(xlCellTypeVisible).EntireRow.Delete
+    On Error GoTo 0
+    
+    'Remove filter
+    ActiveSheet.AutoFilterMode = False
+    
+    MsgBox "Filtered rows have been deleted successfully."
+    
+End Sub
