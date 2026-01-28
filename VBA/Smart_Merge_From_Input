@@ -1,0 +1,77 @@
+Sub Smart_Merge_From_Input()
+
+    Dim ws As Worksheet
+    Dim inputCol As Long
+    Dim targetCols As Variant
+    Dim lastRow As Long
+    Dim r As Long
+    Dim startRow As Long, endRow As Long
+    Dim groupValue As Variant
+    Dim col As Variant
+    Dim topValue As Variant
+    Dim mergeArea As Range
+
+    Set ws = ActiveSheet
+
+    ' Ask for input column (merged OR normal)
+    inputCol = Columns(Application.InputBox( _
+        "Enter INPUT / GROUPING column (e.g. D or J):", Type:=2)).Column
+
+    ' Ask for target column(s)
+    targetCols = Split(Application.InputBox( _
+        "Enter TARGET column(s) to merge (comma separated, e.g. M or L,M):", _
+        Type:=2), ",")
+
+    lastRow = ws.Cells(ws.Rows.Count, inputCol).End(xlUp).Row
+
+    Application.DisplayAlerts = False
+
+    r = 2   ' assuming header row
+
+    Do While r <= lastRow
+
+        ' ---------- CASE 1: Input column already merged ----------
+        If ws.Cells(r, inputCol).MergeCells Then
+
+            Set mergeArea = ws.Cells(r, inputCol).MergeArea
+            startRow = mergeArea.Row
+            endRow = mergeArea.Row + mergeArea.Rows.Count - 1
+
+        ' ---------- CASE 2: Input column not merged ----------
+        Else
+            startRow = r
+            groupValue = ws.Cells(r, inputCol).Value
+
+            Do While r <= lastRow And ws.Cells(r, inputCol).Value = groupValue _
+                  And Not ws.Cells(r, inputCol).MergeCells
+                r = r + 1
+            Loop
+
+            endRow = r - 1
+        End If
+
+        ' ---------- MERGE TARGET COLUMNS ----------
+        If endRow > startRow Then
+            For Each col In targetCols
+
+                ' Capture destination column's top value
+                topValue = ws.Cells(startRow, Trim(col)).Value
+
+                With ws.Range(Trim(col) & startRow & ":" & Trim(col) & endRow)
+                    .ClearContents
+                    .Merge
+                    .Cells(1, 1).Value = topValue
+                    .VerticalAlignment = xlCenter
+                    .HorizontalAlignment = xlCenter
+                End With
+
+            Next col
+        End If
+
+        r = endRow + 1
+
+    Loop
+
+    Application.DisplayAlerts = True
+
+End Sub
