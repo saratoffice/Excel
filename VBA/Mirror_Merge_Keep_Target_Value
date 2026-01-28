@@ -1,0 +1,62 @@
+Sub Mirror_Merge_Keep_Target_Value()
+
+    Dim ws As Worksheet
+    Dim inputCol As Long
+    Dim targetCols As Variant
+    Dim lastRow As Long
+    Dim r As Long
+    Dim col As Variant
+    Dim mergeArea As Range
+    Dim startRow As Long, endRow As Long
+    Dim topValue As Variant
+
+    Set ws = ActiveSheet
+
+    ' Input column (already merged – used only for structure)
+    inputCol = Columns(Application.InputBox( _
+        "Enter INPUT (already merged) column (e.g. D):", Type:=2)).Column
+
+    ' Target column(s) to mirror merge
+    targetCols = Split(Application.InputBox( _
+        "Enter TARGET column(s) to merge (comma separated, e.g. M or L,M):", _
+        Type:=2), ",")
+
+    lastRow = ws.Cells(ws.Rows.Count, inputCol).End(xlUp).Row
+
+    Application.DisplayAlerts = False
+
+    r = 2   ' assuming header row
+
+    Do While r <= lastRow
+
+        If ws.Cells(r, inputCol).MergeCells Then
+
+            Set mergeArea = ws.Cells(r, inputCol).MergeArea
+            startRow = mergeArea.Row
+            endRow = mergeArea.Row + mergeArea.Rows.Count - 1
+
+            For Each col In targetCols
+
+                ' Capture TARGET column top value
+                topValue = ws.Cells(startRow, Trim(col)).Value
+
+                With ws.Range(Trim(col) & startRow & ":" & Trim(col) & endRow)
+                    .ClearContents
+                    .Merge
+                    .Cells(1, 1).Value = topValue
+                    .VerticalAlignment = xlCenter
+                    .HorizontalAlignment = xlCenter
+                End With
+
+            Next col
+
+            r = endRow + 1
+        Else
+            r = r + 1
+        End If
+
+    Loop
+
+    Application.DisplayAlerts = True
+
+End Sub
